@@ -8,7 +8,6 @@ MAX_X = 100
 PLOT_STEP = 0.1
 EPSILON = 1e-6
 MAX_ITER = 30000
-UPPER_BOUND = 100
 DIMENSIONALITY = 2
 
 
@@ -49,7 +48,7 @@ def booth_function(x: np.array):
 def steepest_ascent(
     f, beta: float, dim: int = DIMENSIONALITY
 ):
-    x = np.random.uniform(-UPPER_BOUND, UPPER_BOUND, size=dim)
+    x = np.random.uniform(-MAX_X, MAX_X, size=dim)
     iterations = 0
     cords = [x]
     while iterations <= MAX_ITER:
@@ -57,7 +56,7 @@ def steepest_ascent(
         if distance(d) < EPSILON:
             break
         x = x + beta * d
-        x = np.clip(x, -UPPER_BOUND, UPPER_BOUND)
+        x = np.clip(x, -MAX_X, MAX_X)
         cords.append(x)
         iterations += 1
     return cords
