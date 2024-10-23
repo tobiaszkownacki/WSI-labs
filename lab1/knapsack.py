@@ -13,7 +13,7 @@ def bruteForce(
                     if item_status == 1)
 
         if weight <= max_capacity and value >= best_value:
-            best_backpack = backpack.copy()
+            best_backpack = backpack
             best_value = value
 
     return (best_backpack, best_value)

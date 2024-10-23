@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from autograd import grad
+import os
 
 from cec2017.functions import f1, f2, f3
 
@@ -76,6 +77,9 @@ def make_plot(f, beta: float, dim: int = DIMENSIONALITY):
 
 def main():
     beta_list = [-0.07, -0.00000001, -0.0000000000000003, -0.000000005]
+
+    if not os.path.exists('plots'):
+        os.makedirs('plots')
 
     function_list = [booth_function, f1, f2, f3]
     for f, beta in zip(function_list, beta_list):
