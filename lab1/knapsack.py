@@ -48,8 +48,8 @@ def main() -> None:
     values = [16, 8, 9, 6]
     max_capacity = sum(weights)/2
 
-    result_bF = bruteForce(weights.copy(), values.copy(), max_capacity)
-    result_h = heuristic(weights.copy(), values.copy(), max_capacity)
+    result_bF = bruteForce(weights, values, max_capacity)
+    result_h = heuristic(weights, values, max_capacity)
 
     print(f'BruteForce Backpack: {result_bF[0]} has value {result_bF[1]}')
     print(f'Heuristic Backpack: {result_h[0]} has value {result_h[1]}')
