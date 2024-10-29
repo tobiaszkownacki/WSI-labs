@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from cec2017.functions import f2, f13
+
 DIMENSIONALITY = 10
 MAX_X = 100
 BUDGET = 10000
@@ -57,13 +58,23 @@ def evolutionary_algorithm(
             min_point = new_min_point
             min_value = new_min_value
 
-    return min_point, min_value
+    return (min_point, min_value)
 
 
 def main():
-    min_point, min_value = evolutionary_algorithm(f2, 20, 2)
-    print(f"Minimum point: {min_point}")
-    print(f"Minimum value: {min_value}")
+    results = []
+    population_size = 10
+    for _ in range(30):
+        results.append(evolutionary_algorithm(f2, population_size, 0.5)[1])
+    avg = np.mean(results)
+    std = np.std(results)
+    min_value = np.min(results)
+    max_value = np.max(results)
+    print(f"Average: {avg:.2f}")
+    print(f"Standard deviation: {std:.2f}")
+    print(f"Min: {min_value:.2f}")
+    print(f"Max: {max_value:.2f}")
+    print(f"Iterations: {BUDGET // population_size}")
 
 
 if __name__ == "__main__":
