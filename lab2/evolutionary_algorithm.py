@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from cec2017.functions import f2, f13
+from cec2017.functions import f13
 import copy
 
 DIMENSIONALITY = 10
@@ -9,7 +9,7 @@ BUDGET = 10000
 
 
 def find_the_best(
-        score_list, population: np.ndarray
+        score_list: list[float], population: list[np.ndarray]
 ) -> tuple[np.ndarray, float]:
 
     min_index = np.argmin(score_list)
@@ -67,14 +67,14 @@ def evolutionary_algorithm(
 
 def main():
     results = []
-    population_size = 10
-    for _ in range(30):
-        results.append(evolutionary_algorithm(f2, population_size, 0.5)[1])
+    population_size = 16
+    sigma = 0.1
+    for _ in range(50):
+        results.append(evolutionary_algorithm(f13, population_size, sigma)[1])
     avg = np.mean(results)
     std = np.std(results)
     min_value = np.min(results)
     max_value = np.max(results)
-    print(results)
     print(f"Average: {avg:.2f}")
     print(f"Standard deviation: {std:.2f}")
     print(f"Min: {min_value:.2f}")
