@@ -77,7 +77,7 @@ Większe siły mutacji od 0,7 powodują, że punkty mają problem z znalezieniem
 |1| 23555.16| 14894.60| 3756.78| 68429.11|
 |2|31140.42| 15955.26| 3282.54| 65265.81|
 
-Najmniejsze minimum znaleziono dla siły mutacji równej 0,1, ale najniższą średnią oraz odchylenie standardowe dla 0,5. Sigma równa 0,5 daje średnio o wiele lepsze wyniki niż 0,1.
+Najmniejsze minimum znaleziono dla siły mutacji równej 0,1, ale najniższą średnią oraz odchylenie standardowe dla 0,5. Sigma równa 0,5 daje średnio o wiele lepsze wyniki niż dla siły mutacji wynoszącej 0,1.
 
 ### 3. Zwiększenie budżetu do 50 000
 
@@ -97,7 +97,7 @@ Najmniejsze minimum znaleziono dla siły mutacji równej 0,1, ale najniższą ś
 
 Zwiększenie budżetu do 50000 w obu funkcjach znacznie pomaga algorytmowi w znalezieniu lepszego minimum.
  W przypadku F2, minimum znacznie się zbliżyło do prawdziwego minimum równego 200. Średnia i odchylenie standardowe spadło diametralnie. Podwyższenie budżetu znacząco poprawia niezawodność algorytmu przy pojedynczych uruchomieniach optymalizacji funkcji F2.
- W przypadku F13, minimum spadło nieznacznie, ale średnia oraz odchylenie standardowe spadło diametralnie. Zwiększenie budżetu spowodowało poprawę niezawodności algorytmu przy pojedynczym uruchomieniu, ale ta niezawodność jest o wiele niższa niż w F2
+ W przypadku F13, minimum spadło nieznacznie, ale średnia oraz odchylenie standardowe spadło diametralnie. Zwiększenie budżetu spowodowało poprawę niezawodności algorytmu przy pojedynczym uruchomieniu, ale ta niezawodność jest o wiele niższa niż w przypadku F2
 
  ### 4. Wnioski
- Algorytm ewolucyjny potrafi znaleźć bardzo bliskie okolice minimum globalnego, przy odpowiedniej sile mutacji oraz ilości osobników . Czasami jest potrzeba zwiększenia budżetu w przypadku bardziej skomplikowanych funkcji, aby uzyskać lepsze wyniki. Szczególna poprawa jest w przypadku średniej wyników. Algorytm Ewolucyjny jest dość prosty w implementacji. W porównaniu do metody gradientu prostego, algorytm potrafi znaleźć optima globalne. Średnie wyników również są na korzyść dla algorytmu ewolucyjnego. Uzyskanie wiarygodnego wyniku algorytmu ewolucyjnego wymaga wielokrotnego uruchomienia algorytmu przy odpowiednio dużym budżecie.
+ Algorytm ewolucyjny potrafi znaleźć bardzo bliskie okolice minimum globalnego, przy odpowiedniej sile mutacji oraz liczbie osobników. Czasami jest potrzeba zwiększenia budżetu w przypadku bardziej skomplikowanych funkcji, aby uzyskać lepsze wyniki. Szczególna poprawa jest w przypadku średniej wyników. Algorytm Ewolucyjny jest dość prosty w implementacji. W porównaniu do metody gradientu prostego, algorytm potrafi znaleźć optima globalne. Średnie wyników również są na korzyść dla algorytmu ewolucyjnego. Uzyskanie wiarygodnego wyniku algorytmu ewolucyjnego wymaga wielokrotnego uruchomienia algorytmu przy odpowiednio dużym budżecie.
