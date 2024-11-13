@@ -53,19 +53,37 @@ KING_MARK_COL = (255, 215, 0)
 # count difference between the number of pieces, king+10
 def basic_ev_func(board, is_black_turn):
     h = 0
-    # TODO
     #  funkcja liczy i zwraca ocene aktualnego stanu planszy
 
     # board.board[row][col].is_black() - sprawdza czy to czarny kolor figury
     # board.board[row][col].is_white() - sprawdza czy to biaĹy kolor figury
     # board.board[row][col].is_king() - sprawdza czy to damka
     # wspĂłĹrzÄdne zaczynajÄ (0,0) siÄ od lewej od górnej strony
-    return h
+
+    for row in range(BOARD_HEIGHT):
+        for col in range((row + 1) % 2, BOARD_WIDTH, 2):
+            if board.board[row][col].is_black():
+                h += 1
+                if board.board[row][col].is_king():
+                    h += 10
+            elif board.board[row][col].is_white():
+                h -= 1
+                if board.board[row][col].is_king():
+                    h -= 10
+
+    if board.white_fig_left == 0:
+        h += WON_PRIZE if is_black_turn else -WON_PRIZE
+    elif board.black_fig_left == 0:
+        h += WON_PRIZE if not is_black_turn else -WON_PRIZE
+
+    possible_moves = board.get_possible_moves(is_black_turn)
+    if len(possible_moves) == 0:
+        h += WON_PRIZE if is_black_turn else -WON_PRIZE
+
+    return h if is_black_turn else -h
 
 
 # nagrody jak w wersji podstawowej + nagroda za stopieĹ zwartoĹci grupy
-
-
 def group_prize_ev_func(board, is_black_turn):
     h = 0
     # TODO
@@ -81,7 +99,7 @@ def push_to_opp_half_ev_func(board, is_black_turn):
 
 
 # za każdy nasz pion otrzymuje siÄ nagrodÄ w wysokoĹci: (5 + numer wiersza,
-# na której stoi pion) (im jest bliżej wroga tym lepiej), a za kaĹźdÄ damkę dodatkowe: 10.
+# na której stoi pion) (im jest bliżej wroga tym lepiej), a za każdą damkę dodatkowe: 10.
 def push_forward_ev_func(board, is_black_turn):
     h = 0
     # TODO
