@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-@author: Rafał Biedrzycki
-Kodu tego mogą używać moi studenci na ćwiczeniach z przedmiotu
-Wstęp do Sztucznej Inteligencji.
-Kod ten powstał aby przyspieszyć i ułatwić pracę studentów, aby mogli
-skupić się na algorytmach sztucznej inteligencji.
-Kod nie jest wzorem dobrej jakości programowania w Pythonie, nie jest
-również wzorem programowania obiektowego, może zawierać błędy.
-Mam świadomość wielu jego braków ale nie mam czasu na jego poprawianie.
+@author: RafaĹ Biedrzycki
+Kodu tego mogą używać moi studenci na Ä z przedmiotu WstÄp do Sztucznej Inteligencji.
+Kod ten powstaĹ aby przyspieszyÄ i uĹatwiÄ pracÄ studentĂłw, aby mogli skupiÄ siÄ na algorytmach sztucznej inteligencji.
+Kod nie jest wzorem dobrej jakoĹci programowania w Pythonie, nie jest rĂłwnieĹź wzorem programowania obiektowego, moĹźe zawieraÄ bĹÄdy.
+Mam ĹwiadomoĹÄ wielu jego brakĂłw ale nie mam czasu na jego poprawianie.
 
-Zasady gry: https://en.wikipedia.org/wiki/English_draughts
-(w skrócie: wszyscy ruszają się po 1 polu. Pionki tylko w kierunku wroga,
-damki w dowolnym) z następującymi modyfikacjami: a) bicie nie jest
-wymagane, b) dozwolone jest tylko pojedyncze bicie (bez serii).
+Zasady gry: https://en.wikipedia.org/wiki/English_draughts (w skrĂłcie: wszyscy ruszajÄ siÄ po 1 polu. Pionki tylko w kierunku wroga, damki w dowolnym)
+  z nastÄpujÄcymi modyfikacjami: a) bicie nie jest wymagane,  b) dozwolone jest tylko pojedyncze bicie (bez serii).
 
-Należy napisać funkcje "minimax_a_b_recurr", "minimax_a_b" (która woła
-funkcję rekurencyjną) i funkcje "*ev_func", która ocenia stan gry
+NaleĹźy napisaÄ funkcje "minimax_a_b_recurr", "minimax_a_b" (ktĂłra woĹa funkcjÄ rekurencyjnÄ) i funkcje "*ev_func", ktĂłra oceniajÄ stan gry
+
+ChÄtni mogÄ ulepszaÄ mĂłj kod (trzeba oznaczyÄ komentarzem co zostaĹo zmienione), mogÄ rĂłwnieĹź dodaÄ obsĹugÄ bicia wielokrotnego i wymagania bicia. MogÄ rĂłwnieĹź wdroĹźyÄ reguĹy: https://en.wikipedia.org/wiki/Russian_draughts
 """
 
 import numpy as np
@@ -50,16 +46,25 @@ BRIGHT_BOARD_COL = (250, 250, 250)
 KING_MARK_COL = (255, 215, 0)
 
 
-# count difference between the number of pieces, king+10
-def basic_ev_func(board, is_black_turn):
+def check_end_game(board: 'Board') -> int:
     h = 0
-    #  funkcja liczy i zwraca ocene aktualnego stanu planszy
+    possible_moves = board.get_possible_moves(not board.white_turn)
+    if board.white_fig_left == 0:
+        h += WON_PRIZE
+    elif board.black_fig_left == 0:
+        h -= WON_PRIZE
+    elif len(possible_moves) == 0:
+        h += WON_PRIZE if board.white_turn else -WON_PRIZE
+    return h
 
+
+# count difference between the number of pieces, king+10
+def basic_ev_func(board: 'Board', is_black_perspective: bool) -> int:
     # board.board[row][col].is_black() - sprawdza czy to czarny kolor figury
     # board.board[row][col].is_white() - sprawdza czy to biaĹy kolor figury
     # board.board[row][col].is_king() - sprawdza czy to damka
     # wspĂłĹrzÄdne zaczynajÄ (0,0) siÄ od lewej od górnej strony
-
+    h = 0
     for row in range(BOARD_HEIGHT):
         for col in range((row + 1) % 2, BOARD_WIDTH, 2):
             if board.board[row][col].is_black():
@@ -71,39 +76,91 @@ def basic_ev_func(board, is_black_turn):
                 if board.board[row][col].is_king():
                     h -= 10
 
-    if board.white_fig_left == 0:
-        h += WON_PRIZE if is_black_turn else -WON_PRIZE
-    elif board.black_fig_left == 0:
-        h += WON_PRIZE if not is_black_turn else -WON_PRIZE
-
-    possible_moves = board.get_possible_moves(is_black_turn)
-    if len(possible_moves) == 0:
-        h += WON_PRIZE if is_black_turn else -WON_PRIZE
-
-    return h if is_black_turn else -h
+    # check if game is over
+    h += check_end_game(board)
+    #if (h > 10000 or h < -10000): print(h, is_black_perspective, str(board))
+    return h if is_black_perspective else -h
 
 
 # nagrody jak w wersji podstawowej + nagroda za stopieĹ zwartoĹci grupy
-def group_prize_ev_func(board, is_black_turn):
+def group_prize_ev_func(board: 'Board', is_black_perspective: bool) -> int:
     h = 0
-    # TODO
-    return h
+    bonus = 3
+    for row in range(BOARD_HEIGHT):
+        for col in range((row + 1) % 2, BOARD_WIDTH, 2):
+            if board.board[row][col].is_black():
+                h += 1
+                if board.board[row][col].is_king():
+                    h += 10
+                # check if group is compact
+                if row > 0 and col > 0 and board.board[row - 1][col - 1].is_black():
+                    h += bonus
+                if row > 0 and col < BOARD_WIDTH - 1 and board.board[row - 1][col + 1].is_black():
+                    h += bonus
+                if row == 0 or col == 0 or row == BOARD_HEIGHT - 1 or col == BOARD_WIDTH - 1:
+                    h += bonus
+            elif board.board[row][col].is_white():
+                h -= 1
+                if board.board[row][col].is_king():
+                    h -= 10
+                # check if group is compact
+                if row < BOARD_HEIGHT - 1 and col > 0 and board.board[row + 1][col - 1].is_white():
+                    h -= bonus
+                if row < BOARD_HEIGHT - 1 and col < BOARD_WIDTH - 1 and board.board[row + 1][col + 1].is_white():
+                    h -= bonus
+                if row == 0 or col == 0 or row == BOARD_HEIGHT - 1 or col == BOARD_WIDTH - 1:
+                    h -= bonus
+
+    # check if game is over
+    h += check_end_game(board)
+    # if (h > 1000 or h < -1000): print(h, is_black_perspective, str(board))
+    return h if is_black_perspective else -h
 
 
 # za każdy pion na własnej połowie planszy otrzymuje się 5 nagrody,
 # na połowie przeciwnika 7, a za każdą damkę 10
-def push_to_opp_half_ev_func(board, is_black_turn):
+def push_to_opp_half_ev_func(board, is_black_perspective):
     h = 0
-    # TODO
-    return h
+    for row in range(BOARD_HEIGHT):
+        for col in range((row + 1) % 2, BOARD_WIDTH, 2):
+            if board.board[row][col].is_black():
+                if row < BOARD_HEIGHT // 2:
+                    h += 5
+                else:
+                    h += 7
+                if board.board[row][col].is_king():
+                    h += 10
+            elif board.board[row][col].is_white():
+                if row > BOARD_HEIGHT // 2:
+                    h -= 5
+                else:
+                    h -= 7
+                if board.board[row][col].is_king():
+                    h -= 10
+
+    h += check_end_game(board)
+    # if (h > 10000 or h < -10000): print(h, is_black_perspective, str(board))
+    return h if is_black_perspective else -h
 
 
 # za każdy nasz pion otrzymuje siÄ nagrodÄ w wysokoĹci: (5 + numer wiersza,
 # na której stoi pion) (im jest bliżej wroga tym lepiej), a za każdą damkę dodatkowe: 10.
-def push_forward_ev_func(board, is_black_turn):
+def push_forward_ev_func(board, is_black_perspective):
     h = 0
-    # TODO
-    return h
+    for row in range(BOARD_HEIGHT):
+        for col in range((row + 1) % 2, BOARD_WIDTH, 2):
+            if board.board[row][col].is_black():
+                h += 5 + row
+                if board.board[row][col].is_king():
+                    h += 10
+            elif board.board[row][col].is_white():
+                h -= 5 + BOARD_HEIGHT - row - 1
+                if board.board[row][col].is_king():
+                    h -= 10
+
+    h += check_end_game(board)
+    # if (h < -8000 or h > 8000): print(h, is_black_perspective, str(board))
+    return h if is_black_perspective else -h
 
 
 # f. called from main
@@ -116,10 +173,20 @@ def minimax_a_b(board, depth, plays_as_black, ev_func):
 
     a = -np.inf
     b = np.inf
+
+    def ev_func_top_player(board):
+        return ev_func(board, plays_as_black)
+
     moves_marks = []
     for possible_move in possible_moves:
-        pass
-        # TODO
+        board_copy = deepcopy(board)
+        board_copy.make_move(possible_move)
+        move_val = minimax_a_b_recurr(
+            board_copy, depth - 1, False, a, b, ev_func_top_player
+        )
+        moves_marks.append(move_val)
+
+    best_index = np.argmax(moves_marks)
 
     return possible_moves[best_index]
 
@@ -128,8 +195,35 @@ def minimax_a_b(board, depth, plays_as_black, ev_func):
 
 
 def minimax_a_b_recurr(board, depth, move_max, a, b, ev_func):
-    # TODO
-    return b
+
+    possible_moves = board.get_possible_moves(not board.white_turn)
+    if depth == 0:
+        return ev_func(board)
+    if len(possible_moves) == 0:
+        return ev_func(board)
+
+    if move_max:
+        for possible_move in possible_moves:
+            board_copy = deepcopy(board)
+            board_copy.make_move(possible_move)
+            a = max(
+                a,
+                minimax_a_b_recurr(board_copy, depth - 1, not move_max, a, b, ev_func),
+            )
+            if a >= b:
+                return a
+        return a
+    else:
+        for possible_move in possible_moves:
+            board_copy = deepcopy(board)
+            board_copy.make_move(possible_move)
+            b = min(
+                b,
+                minimax_a_b_recurr(board_copy, depth - 1, not move_max, a, b, ev_func),
+            )
+            if a >= b:
+                return b
+        return b
 
 
 class Move:
@@ -218,6 +312,10 @@ class King(Pawn):
         result = cls.__new__(cls)
         memo[id(self)] = result
         result.__dict__.update(self.__dict__)
+        return result
+
+    def is_king(self):
+        return True
 
     def __str__(self):
         if self.is_white():
@@ -409,11 +507,13 @@ class Board:
         return pos_moves
 
     # detect draws
-    def end(self):
-        # stop if repeats
+    def end(self, is_ai_vs_ai=False):
         if self.black_repeats and self.white_repeats:
             # who won
-            ev = basic_ev_func(self, not self.white_turn)
+            if is_ai_vs_ai:
+                ev = basic_ev_func(self, True)
+            else:
+                ev = basic_ev_func(self, not self.white_turn)
             if ev > 0:
                 self.black_won = True
             elif ev < 0:
@@ -424,8 +524,7 @@ class Board:
             return True
         return False
 
-    # used for useless play detection (game is stopped when players
-    # repeats the same moves)
+    # used for useless play detection (game is stopped when players repeats the same moves)
     def register_move(self, move):
         move_tuple = (
             move.piece.row,
@@ -594,16 +693,10 @@ def main():
         clock.tick(FPS)
 
         if not game.board.white_turn:
-            move = minimax_a_b(game.board, MINIMAX_DEPTH, True, basic_ev_func)
-            # move = minimax_a_b(
-            #     game.board, MINIMAX_DEPTH, True, push_forward_ev_func
-            # )
-            # move = minimax_a_b(
-            #     game.board, MINIMAX_DEPTH, True, push_to_opp_half_ev_func
-            # )
-            # move = minimax_a_b(
-            #     game.board, MINIMAX_DEPTH, True, group_prize_ev_func
-            # )
+            # move = minimax_a_b(game.board, MINIMAX_DEPTH, True, basic_ev_func)
+            move = minimax_a_b( game.board, MINIMAX_DEPTH, True, push_forward_ev_func)
+            # move = minimax_a_b( game.board, MINIMAX_DEPTH, True, push_to_opp_half_ev_func)
+            # move = minimax_a_b( game.board, MINIMAX_DEPTH, True, group_prize_ev_func)
 
             if move is not None:
                 game.board.make_move(move)
@@ -632,34 +725,32 @@ def ai_vs_ai():
     while is_running:
         if board.white_turn:
             move = minimax_a_b(board, 5, not board.white_turn, basic_ev_func)
+            # move = minimax_a_b(board, 5, not board.white_turn, push_forward_ev_func)
+            # move = minimax_a_b(board, 5, not board.white_turn, push_to_opp_half_ev_func)
+            # move = minimax_a_b(board, 5, not board.white_turn, group_prize_ev_func)
         else:
-            move = minimax_a_b(board, 5, not board.white_turn, basic_ev_func)
-            # move = minimax_a_b(
-            #     board, 5, not board.white_turn, push_forward_ev_func
-            # )
-            # move = minimax_a_b(
-            #     board, 5, not board.white_turn, push_to_opp_half_ev_func
-            # )
-            # move = minimax_a_b(
-            #     board, 5, not board.white_turn, group_prize_ev_func
-            # )
+            # move = minimax_a_b(board, 5, not board.white_turn, basic_ev_func)
+            # move = minimax_a_b(board, 5, not board.white_turn, push_forward_ev_func)
+            move = minimax_a_b(board, 5, not board.white_turn, push_to_opp_half_ev_func)
+            # move = minimax_a_b(board, 5, not board.white_turn, group_prize_ev_func)
 
         if move is not None:
             board.register_move(move)
             board.make_move(move)
         else:
+            print("No move")
             if board.white_turn:
                 board.black_won = True
             else:
                 board.white_won = True
             is_running = False
-        if board.end():
+        if board.end(True):
+            print("Draw")
             is_running = False
     print("black_won:", board.black_won)
     print("white_won:", board.white_won)
     # if both won then it is a draw!
 
 
-if __name__ == "__main__":
-    main()
-    # ai_vs_ai()
+main()
+# ai_vs_ai()
