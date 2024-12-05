@@ -38,7 +38,7 @@ def main():
     class_names = data_set.data.targets.iloc[:, 0].unique()
 
     train_data, test_data = train_test_split(
-        data, test_size=0.4, random_state=42
+        data, test_size=0.4, random_state=25
     )
 
     id3 = ID3(train_data, feature_names, class_col_name)
