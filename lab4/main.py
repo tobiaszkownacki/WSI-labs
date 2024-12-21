@@ -3,7 +3,6 @@ from ucimlrepo import fetch_ucirepo
 from model import ID3
 import seaborn as sns
 import matplotlib.pyplot as plt
-import pandas as pd
 from sklearn.metrics import confusion_matrix
 
 

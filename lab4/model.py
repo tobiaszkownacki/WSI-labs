@@ -6,9 +6,9 @@ class Node:
     def __init__(self, attribute_name: str = None, class_name=None):
         self.attribute_name: str = attribute_name
         self.edges: dict[str, Node] = {}
-        self.class_name = class_name
+        self.class_name: str = class_name
 
-    def add_edge(self, attribute_value, node: "Node"):
+    def add_edge(self, attribute_value: str, node: "Node"):
         self.edges[attribute_value] = node
 
 
