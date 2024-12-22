@@ -104,10 +104,10 @@ class DlNet:
         d_hidden_biases: np.array,
         batch_size: int,
     ):
-        self.output_weights -= self.LR * np.sum(d_output_weights) / batch_size
-        self.output_bias -= self.LR * np.sum(d_output_biases) / batch_size
-        self.hidden_weights -= self.LR * np.sum(d_hidden_weights) / batch_size
-        self.hidden_bias -= self.LR * np.sum(d_hidden_biases) / batch_size
+        self.output_weights -= self.LR * d_output_weights / batch_size
+        self.output_bias -= self.LR * d_output_biases / batch_size
+        self.hidden_weights -= self.LR * d_hidden_weights / batch_size
+        self.hidden_bias -= self.LR * d_hidden_biases / batch_size
 
     def train(self, x_set, y_set, iters):
         for i in range(0, iters):
