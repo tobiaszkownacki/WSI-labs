@@ -11,8 +11,8 @@ Nie ma obowiązku używania tego kodu.
 import matplotlib.pyplot as plt
 import numpy as np
 
-# TODO tu prosze podac pierwsze cyfry numerow indeksow
-p = [1, 7]  # swoją pierwszą już podałem
+p = [1, 7]
+np.random.seed(1)
 
 L_BOUND = -5
 U_BOUND = 5
@@ -24,8 +24,6 @@ def q(x):
 
 x = np.linspace(L_BOUND, U_BOUND, 300)
 y = q(x)
-
-np.random.seed(1)
 
 
 # f logistyczna jako przykład sigmoidalnej
