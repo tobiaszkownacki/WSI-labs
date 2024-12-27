@@ -8,7 +8,7 @@ Kod nie jest wzorem dobrej jakoĹci programowania w Pythonie, nie jest równie
 
 Nie ma obowiązku używania tego kodu.
 """
-
+import matplotlib.pyplot as plt
 import numpy as np
 
 # TODO tu prosze podac pierwsze cyfry numerow indeksow
@@ -60,8 +60,8 @@ class DlNet:
         self.y_set: np.array = (y_set - self.y_mean) / self.y_std
         self.y_out: float = 0
 
-        self.HIDDEN_L_SIZE = 9
-        self.LR = 0.003
+        self.HIDDEN_L_SIZE = 12
+        self.LR = 0.05
 
         self.hidden_weights: np.array = np.random.uniform(
             -1, 1, (self.HIDDEN_L_SIZE, 1)
@@ -81,15 +81,15 @@ class DlNet:
 
     def predict(self, x: float):
         self.forward(x)
-        return self.y_out * self.y_std + self.y_mean
+        return (self.y_out * self.y_std + self.y_mean).item()
 
     def backward(self, x: float, y: float):
         # output layer
-        d_output_weights: np.array = self.y1 * d_nloss(self.y_out, y)
+        d_output_weights: np.array = self.y1.T * d_nloss(self.y_out, y)
         d_output_biases: np.array = d_nloss(self.y_out, y)
 
         # hidden layer
-        dq_dy: np.array = d_nloss(self.y_out, y) * self.output_weights
+        dq_dy: np.array = d_nloss(self.y_out, y) * self.output_weights.T
         dq_ds: np.array = dq_dy * d_sigmoid(self.s)
         d_hidden_weights: np.array = dq_ds * x
         d_hidden_biases: np.array = dq_ds
@@ -109,32 +109,72 @@ class DlNet:
         self.hidden_weights -= self.LR * d_hidden_weights / batch_size
         self.hidden_bias -= self.LR * d_hidden_biases / batch_size
 
-    def train(self, x_set, y_set, iters):
-        for i in range(0, iters):
-            pass
+    def train(self, x_set, y_set, iters, batch_size=10):
+        for i in range(iters):
+            indices = np.random.permutation(len(x_set))
+            x_set_shuffled = x_set[indices]
+            y_set_shuffled = y_set[indices]
+
+            total_loss = 0
+
+            for start_idx in range(0, len(x_set), batch_size):
+                end_idx = start_idx + batch_size
+                x_batch = x_set_shuffled[start_idx:end_idx]
+                y_batch = y_set_shuffled[start_idx:end_idx]
+
+                total_d_output_weights = np.zeros_like(self.output_weights)
+                total_d_output_biases = np.zeros_like(self.output_bias)
+                total_d_hidden_weights = np.zeros_like(self.hidden_weights)
+                total_d_hidden_biases = np.zeros_like(self.hidden_bias)
+
+                for x, y in zip(x_batch, y_batch):
+                    self.forward(x)
+                    total_loss += nloss(self.y_out, y)
+
+                    d_output_weights, d_output_biases, d_hidden_weights, d_hidden_biases = self.backward(x, y)
+
+                    total_d_output_weights += d_output_weights
+                    total_d_output_biases += d_output_biases
+                    total_d_hidden_weights += d_hidden_weights
+                    total_d_hidden_biases += d_hidden_biases
+
+                batch_size_actual = len(x_batch)
+                self.update_weights(
+                    total_d_output_weights,
+                    total_d_output_biases,
+                    total_d_hidden_weights,
+                    total_d_hidden_biases,
+                    batch_size_actual,
+                )
+
+            if (i + 1) % 1000 == 0:
+                print(f"Iteracja {i + 1}/{iters}, Strata: {total_loss}")
 
 
-# TODO
+
+def calculate_mse(y_true, y_pred):
+    return np.mean((y_true - y_pred) ** 2)
 
 
-nn = DlNet(x, y)
-nn.train(x, y, 15000)
+def main():
+    nn = DlNet(x, y)
+    nn.train(x, y, 15000, 10)
+    yh = [nn.predict(xi) for xi in x]
 
-yh = []  # TODO tu umieścić wyniki (y) z sieci
+    print(f"MSE: {calculate_mse(y, yh)}")
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.spines['left'].set_position('center')
+    ax.spines['bottom'].set_position('zero')
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
 
-# import matplotlib.pyplot as plt
+    plt.plot(x,y, 'r', label='train')
+    plt.plot(x,yh, 'b', label='test')
+    plt.legend()
+    plt.show()
 
-
-# fig = plt.figure()
-# ax = fig.add_subplot(1, 1, 1)
-# ax.spines['left'].set_position('center')
-# ax.spines['bottom'].set_position('zero')
-# ax.spines['right'].set_color('none')
-# ax.spines['top'].set_color('none')
-# ax.xaxis.set_ticks_position('bottom')
-# ax.yaxis.set_ticks_position('left')
-
-# plt.plot(x,y, 'r')
-# plt.plot(x,yh, 'b')
-
-# plt.show()
+if __name__ == '__main__':
+    main()
