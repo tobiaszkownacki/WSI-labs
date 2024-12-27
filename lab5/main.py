@@ -22,7 +22,7 @@ def q(x):
     return np.sin(x * np.sqrt(p[0] + 1)) + np.cos(x * np.sqrt(p[1] + 1))
 
 
-x = np.linspace(L_BOUND, U_BOUND, 100)
+x = np.linspace(L_BOUND, U_BOUND, 300)
 y = q(x)
 
 np.random.seed(1)
@@ -51,17 +51,17 @@ def d_nloss(y_out: float, y: float):
 
 class DlNet:
     def __init__(self, x_set: np.array, y_set: np.array):
-        x_mean: float = np.mean(x_set)
-        x_std: float = np.std(x_set)
-        self.x_set: np.array = (x_set - x_mean) / x_std
+        self.x_mean: float = np.mean(x_set)
+        self.x_std: float = np.std(x_set)
+        self.x_set: np.array = (x_set - self.x_mean) / self.x_std
 
         self.y_mean: float = np.mean(y_set)
         self.y_std: float = np.std(y_set)
         self.y_set: np.array = (y_set - self.y_mean) / self.y_std
         self.y_out: float = 0
 
-        self.HIDDEN_L_SIZE = 12
-        self.LR = 0.05
+        self.HIDDEN_L_SIZE = 13
+        self.LR = 0.1
 
         self.hidden_weights: np.array = np.random.uniform(
             -1, 1, (self.HIDDEN_L_SIZE, 1)
@@ -75,11 +75,12 @@ class DlNet:
         self.s: np.array = np.zeros(shape=(self.HIDDEN_L_SIZE, 1))
 
     def forward(self, x: float):
-        self.s = np.dot(self.hidden_weights, x) + self.hidden_bias
+        self.s = self.hidden_weights * x + self.hidden_bias
         self.y1 = sigmoid(self.s)
         self.y_out = np.dot(self.output_weights, self.y1) + self.output_bias
 
     def predict(self, x: float):
+        x = (x - self.x_mean) / self.x_std
         self.forward(x)
         return (self.y_out * self.y_std + self.y_mean).item()
 
@@ -109,15 +110,15 @@ class DlNet:
         self.hidden_weights -= self.LR * d_hidden_weights / batch_size
         self.hidden_bias -= self.LR * d_hidden_biases / batch_size
 
-    def train(self, x_set, y_set, iters, batch_size=10):
+    def train(self, iters, batch_size=10):
         for i in range(iters):
-            indices = np.random.permutation(len(x_set))
-            x_set_shuffled = x_set[indices]
-            y_set_shuffled = y_set[indices]
+            indices = np.random.permutation(len(self.x_set))
+            x_set_shuffled = self.x_set[indices]
+            y_set_shuffled = self.y_set[indices]
 
             total_loss = 0
 
-            for start_idx in range(0, len(x_set), batch_size):
+            for start_idx in range(0, len(self.x_set), batch_size):
                 end_idx = start_idx + batch_size
                 x_batch = x_set_shuffled[start_idx:end_idx]
                 y_batch = y_set_shuffled[start_idx:end_idx]
@@ -151,14 +152,13 @@ class DlNet:
                 print(f"Iteracja {i + 1}/{iters}, Strata: {total_loss}")
 
 
-
 def calculate_mse(y_true, y_pred):
     return np.mean((y_true - y_pred) ** 2)
 
 
 def main():
     nn = DlNet(x, y)
-    nn.train(x, y, 15000, 10)
+    nn.train(15000, 10)
     yh = [nn.predict(xi) for xi in x]
 
     print(f"MSE: {calculate_mse(y, yh)}")
@@ -171,10 +171,11 @@ def main():
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
 
-    plt.plot(x,y, 'r', label='train')
-    plt.plot(x,yh, 'b', label='test')
+    plt.plot(x, y, 'r', label='train')
+    plt.plot(x, yh, 'b', label='test')
     plt.legend()
     plt.show()
+
 
 if __name__ == '__main__':
     main()
