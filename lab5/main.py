@@ -146,20 +146,21 @@ class DlNet:
                     batch_size_actual,
                 )
 
-            if (i + 1) % 1000 == 0:
-                print(f"Iteracja {i + 1}/{iters}, Strata: {total_loss}")
-
 
 def calculate_mse(y_true, y_pred):
     return np.mean((y_true - y_pred) ** 2)
 
 
+def calculate_max_error(y_true, y_pred):
+    return np.max(np.abs(y_true - y_pred))
+
 def main():
     nn = DlNet(x, y)
-    nn.train(15000, 10)
+    nn.train(5000, 10)
     yh = [nn.predict(xi) for xi in x]
 
     print(f"MSE: {calculate_mse(y, yh)}")
+    print(f"Max error: {calculate_max_error(y, yh)}")
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.spines['left'].set_position('center')
