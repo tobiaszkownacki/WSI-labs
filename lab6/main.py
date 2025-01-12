@@ -94,7 +94,7 @@ class QLearnFrozenLake:
         reward: int, next_state: int, current_state: int, done: bool
     ) -> int:
         # If the agent falls into a hole, the reward is -1
-        # if the agent reaches the goal, the reward is 1
+        # if the agent reaches the goal, the reward is 10
         if done and reward == 0:
             return -1
         elif done and reward == 1:
@@ -157,7 +157,7 @@ def plot_results(averaged_reward_base: np.array, averaged_reward: np.array, max_
 
 def main():
     num_of_id_runs = 25
-    num_of_episodes = 1000
+    num_of_episodes = 10000
     num_of_steps = 200
 
     averaged_reward_base = compare_average_rewards(
@@ -171,7 +171,7 @@ def main():
         num_of_episodes,
         num_of_steps,
         num_of_id_runs,
-        QLearnFrozenLake.reward_alternative_2,
+        QLearnFrozenLake.reward_alternative_1,
         True
         )
 
